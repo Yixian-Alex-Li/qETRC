@@ -1,0 +1,57 @@
+diff --git a/src/util/utilfunc.cpp b/src/util/utilfunc.cpp
+index 1234567..89abcde 100644
+--- a/src/util/utilfunc.cpp
++++ b/src/util/utilfunc.cpp
+@@ -1,5 +1,15 @@
+ #include <QTime>
+ #include <QString>
+
++QString convertTo60MinCycle(QTime time) {
++    int totalMinutes = time.hour() * 60 + time.minute();
++    int scaledMinutes = (totalMinutes * 60) / 1440;
++    int newHours = scaledMinutes / 60;
++    int newMinutes = scaledMinutes % 60;
++    return QString("%1:%2").arg(newHours, 2, 10, QChar('0'))
++                          .arg(newMinutes, 2, 10, QChar('0'));
++}
++
+ // Find existing time display function and replace calls to QTime::toString()
+
+diff --git a/src/model/delegate/qetimedelegate.cpp b/src/model/delegate/qetimedelegate.cpp
+index 2345678..abcdef0 100644
+--- a/src/model/delegate/qetimedelegate.cpp
++++ b/src/model/delegate/qetimedelegate.cpp
+@@ -1,5 +1,14 @@
+ #include <QTime>
+
++QTime convertTo24HourCycle(int userHour, int userMinute) {
++    int totalMinutes = userHour * 60 + userMinute;
++    int scaledMinutes = (totalMinutes * 1440) / 60;
++    int newHours = scaledMinutes / 60;
++    int newMinutes = scaledMinutes % 60;
++    return QTime(newHours, newMinutes);
++}
++
+ // Locate user input parsing and modify it
+ QTime userTime = QTime::fromString(inputString, "hh:mm");
+ QTime adjustedTime = convertTo24HourCycle(userTime.hour(), userTime.minute());
+
+diff --git a/src/model/train/timetablestdmodel.cpp b/src/model/train/timetablestdmodel.cpp
+index 3456789..bcdef01 100644
+--- a/src/model/train/timetablestdmodel.cpp
++++ b/src/model/train/timetablestdmodel.cpp
+@@ -1,5 +1,7 @@
++#include "utilfunc.cpp"  // Ensure the function is available
+
+ // Locate train schedule time storage and modify
+ QTime scheduleTime = convertTo24HourCycle(hour, minute);
+
+diff --git a/src/mainwindow/mainwindow.cpp b/src/mainwindow/mainwindow.cpp
+index 4567890..cdef012 100644
+--- a/src/mainwindow/mainwindow.cpp
++++ b/src/mainwindow/mainwindow.cpp
+@@ -1,5 +1,7 @@
++#include "utilfunc.cpp"
+
+ // Locate UI time display and modify
+ ui->someLabel->setText(convertTo60MinCycle(time));
